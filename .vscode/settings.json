@@ -1,0 +1,7 @@
+{
+    "C_Cpp.default.configurationProvider": "nordic-semiconductor.nrf-connect",
+    "iis.configDir": "",
+    "nrf-connect.debugging.bindings": {
+        "${workspaceFolder}/build_dk/blinky": "Launch blinky"
+    }
+}

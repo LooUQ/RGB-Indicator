@@ -1,0 +1,30 @@
+
+/ {
+    pins {
+        compatible = "gpio-leds";
+
+        pt2: pt_2 {
+            gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+        };
+
+        pt3: pt_3 {
+            gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+        };
+
+        pt6: pt_6 {
+            gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+        };
+
+        pt7: pt_7 {
+            gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
+        };
+    };
+
+
+    aliases {
+        pt0 = &led0;
+        pt1 = &led1;
+        pt4 = &led2;
+        pt5 = &led3;
+    };
+};

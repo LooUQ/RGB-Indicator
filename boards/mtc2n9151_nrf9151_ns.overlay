@@ -1,0 +1,38 @@
+
+//#include "../mtc2n9151_pin-disable.overlay"
+
+/ {
+    pins {
+        compatible = "gpio-leds";
+
+        hxrqst: pin_1 {
+            gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
+        };
+        pwrgood: pin_0 {
+            gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+        };
+
+    };
+
+};
+
+// &i2c2 {
+//     bmp: bmp581@47 {
+//         compatible = "bosch,bmp581";
+//         reg = <0x47>;
+//     };
+
+//     sht: sht45@44 {
+//         compatible = "sensirion,sht4x";
+//         reg = <0x44>;
+//         repeatability = <0>;
+//     };
+// };
+
+
+&i2c3 {                                                 // RGB on the HX bus
+    rgbctrl: ti_lp5817@2d {
+        compatible = "i2c-device";
+        reg = <0x2d>;
+    };
+};
