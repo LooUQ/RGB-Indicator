@@ -12,9 +12,10 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rgbi, LOG_LEVEL_INF);
 
-#include "rgb_indicator.h"
+#include "rgb-indicator.h"
 
-#define SLEEP_TIME_MS 250
+#define LOOP_SLEEP_MS 1000
+#define COLOR_SLEEP_MS 500
 
 #define HXRQST_NODE DT_NODELABEL(hxrqst)
 #define PWRGOOD_NODE DT_NODELABEL(pwrgood)
@@ -36,7 +37,7 @@ static const struct led_rgb LED_BLUE = RGB(0,0,100);
 
 static const struct led_rgb colors[] = {
     RGB(0, 0, 0),
-    RGB(100, 0, 0),          /* red */
+    RGB(100, 0, 0),         /* red */
     RGB(0, 0, 0),
     RGB(0, 100, 0),         /* green */
     RGB(0, 0, 0),
@@ -44,9 +45,12 @@ static const struct led_rgb colors[] = {
     RGB(0, 0, 0),
     RGB(100, 100, 100),     /* white */
     RGB(0, 0, 0),
+    RGB(100, 100, 0),       /* yellow */ 
     RGB(0, 0, 0),
-    RGB(100, 100, 0),
-    RGB(0, 100, 100)
+    RGB(0, 100, 100),       /* cyan */
+    RGB(0, 0, 0),
+    RGB(100, 0, 100),       /* magenta */
+    RGB(0, 0, 0)
 };
 
 rgb_indicator_t rgbi;
@@ -83,14 +87,20 @@ int main(void)
         printk("Failed to initalize the RGB indicator, err=%d\r\n", ret);
     }
 
-    rgbi_setColor(&rgbi, &LED_OFF);
-    rgbi_setColor(&rgbi, &LED_RED);                 // got green, blue, red
-    k_msleep(1000);
-    rgbi_setColor(&rgbi, &LED_GREEN);
-    k_msleep(1000);
-    rgbi_setColor(&rgbi, &LED_BLUE);
-    k_msleep(1000);
-    rgbi_setColor(&rgbi, &LED_OFF);
+    // rgbi_setColor(&rgbi, &LED_OFF);
+    // rgbi_setColor(&rgbi, &LED_RED);                 // got green, blue, red
+    // k_msleep(1000);
+    // rgbi_setColor(&rgbi, &LED_GREEN);
+    // k_msleep(1000);
+    // rgbi_setColor(&rgbi, &LED_BLUE);
+    // k_msleep(1000);
+    // rgbi_setColor(&rgbi, &LED_OFF);
+
+    for (size_t i = 0; i < sizeof(colors)/3; i++)       // cycle through primary/secondary colors
+    {
+        rgbi_setColor(&rgbi, &colors[i]);
+        k_msleep(COLOR_SLEEP_MS);
+    }
 
     while (1)
     {
@@ -102,9 +112,11 @@ int main(void)
             return 0;
         }
 
+         
+
         loopcount++;
         printf("Loops: %d\n", loopcount);
-        k_msleep(SLEEP_TIME_MS);
+        k_msleep(LOOP_SLEEP_MS);
     }
     return 0;
 }

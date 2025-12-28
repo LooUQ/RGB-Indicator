@@ -8,7 +8,7 @@
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/sys_clock.h>
 
-#include "rgb_indicator.h"
+#include "rgb-indicator.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rgb_indicator);
@@ -18,6 +18,7 @@ const uint8_t dot_current[] = { 128, 128, 128 };                                
 /* Private service function declarations
  * -------------------------------------------------------------------------------------------- */
 static int lp5817_init(const struct i2c_dt_spec *rgb_ctrllr);
+static void lp5817_setColor(const struct i2c_dt_spec *rgb_ctrllr, uint8_t red, uint8_t green, uint8_t blue);
 static void flashTimerExpiry(struct k_timer *flashTimer);                       // ISR for timer expiry
 static void flashDisplay_handler(struct k_work *work);                          // workqueue handler for flash actions
 static inline bool isFlashing(rgb_indicator_t * indicator);                     // quick check for active flash session
@@ -60,30 +61,7 @@ int rgbi_init(const struct i2c_dt_spec *rgb_dev, rgb_indicator_t * rgbi)
  */
 void rgbi_setColor(rgb_indicator_t *rgbi, const struct led_rgb * channels)
 {
-   	int ret;
-    uint8_t cmd[2];
-
-    // per TI documentation 0x18, 0x 19, 0x1a. But doesn't seem to be that way
-    // cmd[0] = LP5817_REG_INTENSITY0;      // red
-    // cmd[0] = LP5817_REG_INTENSITY1;      // green
-    // cmd[0] = LP5817_REG_INTENSITY2;      // blue
-
-    cmd[0] = LP5817_REG_INTENSITY2;
-    cmd[1] = channels->r;
-    ret = i2c_write_dt(rgbi->rgbdev, cmd, sizeof(cmd));
-
-    cmd[0] = LP5817_REG_INTENSITY0;
-    cmd[1] = channels->g;
-    ret += i2c_write_dt(rgbi->rgbdev, cmd, sizeof(cmd));
-
-    cmd[0] = LP5817_REG_INTENSITY1;
-    cmd[1] = channels->b;
-    ret += i2c_write_dt(rgbi->rgbdev, cmd, sizeof(cmd));
-
-    if (ret != 0)
-    {
-    	LOG_ERR("Could not update indicator");
-    }
+    lp5817_setColor(rgbi->rgbdev, channels->r, channels->g, channels->b);
 }
 
 
@@ -97,8 +75,7 @@ void rgbi_setColor(rgb_indicator_t *rgbi, const struct led_rgb * channels)
  */
 void rgbi_setColorFromPixels(rgb_indicator_t *rgbi, rgbi_color red, rgbi_color green, rgbi_color blue)
 {
-    CREATE_RGB_PIXELS(pixels, red, green, blue);
-    rgbi_setColor(rgbi, &pixels);
+    lp5817_setColor(rgbi->rgbdev, red, green, blue);
 }
 
 
@@ -165,7 +142,6 @@ void rgbi_cancel(rgb_indicator_t *rgbi)
 }
 
 
-
 /* Private service functions definitions
  * --------------------------------------------------------------------------------------------- */
 
@@ -227,6 +203,9 @@ static int lp5817_init(const struct i2c_dt_spec *rgb_ctrllr)
         LOG_ERR("Failed to enable channels\r\n");
     }
 
+
+    lp5817_setColor(rgb_ctrllr, 0, 0, 0);
+
     cmd[0] = LP5817_REG_UPDATE;
     cmd[1] = LP5817_CMD_UPDATE;
     ret = i2c_write_dt(rgb_ctrllr, cmd, sizeof(cmd));
@@ -243,6 +222,36 @@ static int lp5817_init(const struct i2c_dt_spec *rgb_ctrllr)
     // }
 
     return ret;
+}
+
+
+static void lp5817_setColor(const struct i2c_dt_spec *rgb_ctrllr, uint8_t red, uint8_t green, uint8_t blue)
+{
+   	int ret;
+    uint8_t cmd[2];
+
+    // per TI documentation 0x18, 0x 19, 0x1a. But doesn't seem to be that way
+    // cmd[0] = LP5817_REG_INTENSITY0;      // red
+    // cmd[0] = LP5817_REG_INTENSITY1;      // green
+    // cmd[0] = LP5817_REG_INTENSITY2;      // blue
+
+    cmd[0] = LP5817_REG_INTENSITY2;
+    cmd[1] = red;
+    ret = i2c_write_dt(rgb_ctrllr, cmd, sizeof(cmd));
+
+    cmd[0] = LP5817_REG_INTENSITY0;
+    cmd[1] = green;
+    ret = i2c_write_dt(rgb_ctrllr, cmd, sizeof(cmd));
+
+    cmd[0] = LP5817_REG_INTENSITY1;
+    cmd[1] = blue;
+    ret = i2c_write_dt(rgb_ctrllr, cmd, sizeof(cmd));
+
+    if (ret != 0)
+    {
+    	LOG_ERR("Could not update indicator");
+    }
+
 }
 
 

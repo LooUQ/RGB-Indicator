@@ -13,7 +13,7 @@ Other items that LooUQ places on the Host Extension interface include:
 * Future I2C base sensors/multiplexors
 
 ## Using the RGB Indicator
-The incorporate the TI LP5817 in your design you need to add a couple of parts to your PCB.
+To support the RGB indicator your design you need to add a couple of parts to your PCB.
 * TI LP5817
 * Everlight Electronics (or equivalent) EAST1616RGBB4
 
