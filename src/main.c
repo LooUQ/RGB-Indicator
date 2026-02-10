@@ -11,7 +11,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rgbi, LOG_LEVEL_INF);
 
-#include "../drivers/rgb-indicator/rgb-indicator.h"
+#include "c:/ncs/loouq/modules/rgb-indicator/include/rgb-indicator.h"
 
 #define LOOP_SLEEP_MS 1000
 #define COLOR_SLEEP_MS 500

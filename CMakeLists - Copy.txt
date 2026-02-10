@@ -1,15 +1,14 @@
-# SPDX-License-Identifier: Apache-2.0
+##
+# https://github.com/zephyrproject-rtos/example-application/tree/main
 
 cmake_minimum_required(VERSION 3.20.0)
-
-set(EXTRA_ZEPHYR_MODULES "c:/ncs/loouq/modules/rgb-indicator")
-
-find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(rgbindicator VERSION 1.0.0 DESCRIPTION "RGB indicator using TI LED controller")
 
-set(LOOUQ_BASE "C:/NCS/loouq")
-message(STATUS "Zephyr at: ${ZEPHYR_BASE}")
-message(STATUS "LooUQ at: ${LOOUQ_BASE}")
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+
+# set(LOOUQ_BASE "c:/ncs/loouq")
+# message(STATUS "Zephyr at: ${ZEPHYR_BASE}")
+# message(STATUS "LooUQ at: ${LOOUQ_BASE}")
 
 # *** extract all CMAKE variables to output ***
 # get_cmake_property(all_vars VARIABLES)
