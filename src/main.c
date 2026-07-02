@@ -5,13 +5,13 @@
 
 #include <stdio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/drivers/i2c.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rgbi, LOG_LEVEL_INF);
 
-#include "c:/ncs/loouq/modules/rgb-indicator/include/rgb-indicator.h"
+#include <rgb_indicator.h>
 
 #define LOOP_SLEEP_MS 1000
 #define COLOR_SLEEP_MS 500
@@ -22,7 +22,7 @@ LOG_MODULE_REGISTER(rgbi, LOG_LEVEL_INF);
 
 static const struct gpio_dt_spec hxrqst = GPIO_DT_SPEC_GET(HXRQST_NODE, gpios);
 static const struct gpio_dt_spec hxctrl = GPIO_DT_SPEC_GET(HXCTRL_NODE, gpios);
-static const struct i2c_dt_spec rgbctrl = I2C_DT_SPEC_GET(RGBCTRL_NODE);
+static const struct device *const rgbi = DEVICE_DT_GET(RGBCTRL_NODE);
 
 // #define BMP_NODE DT_NODELABEL(bmp)
 // #define SHT_NODE DT_NODELABEL(sht)
@@ -52,8 +52,6 @@ static const struct led_rgb colors[] = {
     RGB(0, 0, 0)
 };
 
-rgb_indicator_t rgbi;
-
 int main(void)
 {
     int ret;
@@ -63,9 +61,7 @@ int main(void)
 
     if (!gpio_is_ready_dt(&hxrqst) ||
         !gpio_is_ready_dt(&hxctrl) ||
-        !device_is_ready(rgbctrl.bus) 
-        // !device_is_ready(bmp_snsr.bus) ||
-        // !device_is_ready(sht_snsr.bus)
+        !device_is_ready(rgbi)
        )
     {
         LOG_ERR("Required devices not ready");
@@ -80,24 +76,9 @@ int main(void)
         return 0;
     }
 
-    ret = rgbi_init(&rgbctrl, &rgbi);
-    if (ret != 0)
+    for (size_t i = 0; i < sizeof(colors)/sizeof(struct led_rgb); i++)       // cycle through primary/secondary colors
     {
-        printk("Failed to initalize the RGB indicator, err=%d\r\n", ret);
-    }
-
-    // rgbi_setColor(&rgbi, &LED_OFF);
-    // rgbi_setColor(&rgbi, &LED_RED);                 // got green, blue, red
-    // k_msleep(1000);
-    // rgbi_setColor(&rgbi, &LED_GREEN);
-    // k_msleep(1000);
-    // rgbi_setColor(&rgbi, &LED_BLUE);
-    // k_msleep(1000);
-    // rgbi_setColor(&rgbi, &LED_OFF);
-
-    for (size_t i = 0; i < sizeof(colors)/3; i++)       // cycle through primary/secondary colors
-    {
-        rgbi_setColor(&rgbi, &colors[i]);
+        rgbi_set_color(rgbi, &colors[i]);
         k_msleep(COLOR_SLEEP_MS);
     }
 
@@ -111,10 +92,12 @@ int main(void)
             return 0;
         }
 
-         
-
         loopcount++;
-        printf("Loops: %d\n", loopcount);
+
+        int colorIndx = loopcount % (sizeof(colors)/sizeof(struct led_rgb));
+        rgbi_set_color(rgbi, &colors[colorIndx]);
+
+        printf("Loops: %d (%d)\n", loopcount, colorIndx);
         k_msleep(LOOP_SLEEP_MS);
     }
     return 0;

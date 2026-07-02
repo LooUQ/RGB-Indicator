@@ -2,7 +2,8 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-set(EXTRA_ZEPHYR_MODULES "c:/ncs/loouq/modules/rgb-indicator")
+# Pull in the out-of-tree RGB indicator driver module (LP5817 driver + DT binding)
+list(APPEND EXTRA_ZEPHYR_MODULES "C:/NCS/loouq/modules/rgb-indicator")
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(rgbindicator VERSION 1.0.0 DESCRIPTION "RGB indicator using TI LED controller")
@@ -17,4 +18,4 @@ message(STATUS "LooUQ at: ${LOOUQ_BASE}")
 #     message(STATUS "VAR: ${var}=${${var}}")
 # endforeach()
 
-target_sources(app PRIVATE src/main.c c:/ncs/loouq/modules/rgb-indicator/rgb-indicator.c)
+target_sources(app PRIVATE src/main.c)

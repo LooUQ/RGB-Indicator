@@ -34,8 +34,11 @@
 
 
 &i2c3 {                                                 // RGB on the HX bus
-    rgbctrl: ti_lp5817@2d {
-        compatible = "i2c-device";
+    rgbctrl: rgb-indicator@2d {
+        compatible = "ti,lp5817";
         reg = <0x2d>;
+        max-current = <1>;
+        dot-current = [80 80 80];        /* 0x80 = 128 per channel */
+        color-mapping = [00 01 02];      /* R->OUT0  G->OUT1  B->OUT2 (straight wiring) */
     };
 };
